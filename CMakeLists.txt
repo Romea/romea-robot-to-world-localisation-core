@@ -15,6 +15,8 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
  add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
+string(TOUPPER $ENV{ROS_DISTRO} ROS_DISTRO)
+set(ROS_DISTRO "ROS_${ROS_DISTRO}")
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
@@ -48,20 +50,62 @@ ament_target_dependencies(${PROJECT_NAME}
  romea_localisation_utils
  )
 
-#rclcpp_components_register_nodes(${PROJECT_NAME}
-# "romea::R2WKalmanLocalisation"
-# "romea::R2WParticleLocalisation"
-# )
+if(${ROS_DISTRO} STREQUAL "ROS_GALACTIC")
+  rclcpp_components_register_nodes(${PROJECT_NAME} "romea::R2WKalmanLocalisation")
 
-rclcpp_components_register_node(${PROJECT_NAME}
-  PLUGIN "romea::R2WKalmanLocalisation"
-  EXECUTABLE robot_to_world_kalman_localisation_node
-)
+  add_executable(robot_to_world_kalman_localisation_node
+    src/robot_to_world_localisation.cpp
+    src/robot_to_world_kalman_localisation_node.cpp)
 
-rclcpp_components_register_node(${PROJECT_NAME}
-  PLUGIN "romea::R2WParticleLocalisation"
-  EXECUTABLE robot_to_world_particle_localisation_node
-)
+  add_executable(robot_to_world_particle_localisation_node
+    src/robot_to_world_localisation.cpp
+    src/robot_to_world_particle_localisation_node.cpp)
+
+  target_include_directories(robot_to_world_kalman_localisation_node PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
+
+  target_include_directories(robot_to_world_particle_localisation_node PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
+
+  ament_target_dependencies(robot_to_world_kalman_localisation_node
+    class_loader
+    rclcpp
+    rclcpp_components
+    romea_core_common
+    romea_core_localisation
+    romea_common_utils
+    romea_localisation_msgs
+    romea_localisation_utils)
+
+  ament_target_dependencies(robot_to_world_particle_localisation_node
+    class_loader
+    rclcpp
+    rclcpp_components
+    romea_core_common
+    romea_core_localisation
+    romea_common_utils
+    romea_localisation_msgs
+    romea_localisation_utils)
+
+  install(TARGETS
+    robot_to_world_kalman_localisation_node
+    robot_to_world_particle_localisation_node
+    DESTINATION lib/${PROJECT_NAME})
+else()
+  rclcpp_components_register_node(${PROJECT_NAME}
+    PLUGIN "romea::R2WKalmanLocalisation"
+    EXECUTABLE robot_to_world_kalman_localisation_node
+    EXECUTOR "MultiThreadedExecutor"
+  )
+
+  rclcpp_components_register_node(${PROJECT_NAME}
+    PLUGIN "romea::R2WParticleLocalisation"
+    EXECUTABLE robot_to_world_particle_localisation_node
+    EXECUTOR "MultiThreadedExecutor"
+  )
+
+endif()
+
 
 install(TARGETS
  ${PROJECT_NAME}
@@ -114,12 +158,13 @@ install(TARGETS
 
 #install(TARGETS ${PROJECT_NAME}_node DESTINATION lib/${PROJECT_NAME})
 
-#if(BUILD_TESTING)
+if(BUILD_TESTING)
 
-#    find_package(ament_lint_auto REQUIRED)
-#    ament_lint_auto_find_test_dependencies()
-#    add_subdirectory(test)
+  find_package(ament_lint_auto REQUIRED)
+  list(APPEND AMENT_LINT_AUTO_EXCLUDE ament_cmake_copyright)
+  ament_lint_auto_find_test_dependencies()
+  #  add_subdirectory(test)
 
-#endif()
+endif()
 
 ament_package()
