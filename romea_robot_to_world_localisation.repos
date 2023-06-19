@@ -36,3 +36,8 @@ repositories:
         type: git
         uri: git@gitlab-ssh.irstea.fr:romea_ros2/algorithms/localisation/romea_localisation_odo.git
         version: devel
+    romea_ros2/algorithms/localisation/romea_localisation_odo:
+        type: git        
+        git@gitlab-ssh.irstea.fr:romea_ros2/algorithms/localisation/romea_robot_to_world_localisation.git
+        version: devel
+
