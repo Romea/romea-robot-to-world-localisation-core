@@ -1,0 +1,47 @@
+core:
+  #log_directory
+  filter:
+    state_pool_size: 1000
+    number_of_particle: 200
+  predictor:
+    maximal_dead_recknoning_travelled_distance: 2.
+    maximal_dead_recknoning_elapsed_time: 10.
+  angular_speed_updater:
+    topic: angular_speed
+    minimal_rate: 10
+  linear_speeds_updater:
+    topic: twist
+    minimal_rate: 10
+  position_updater:
+    topic: position
+    minimal_rate: 1
+    trigger: always
+  course_updater:
+    topic: course
+    minimal_rate: 1
+    trigger: once
+  attitude_updater:
+    topic: attitude
+    minimal_rate: 10
+  publish_rate: 10
+  debug: true
+plugins:
+  gps:
+    sensor_name: gps
+    restamping: false
+    minimal_fix_quality: 4
+    minimal_speed_over_ground: 0.5
+  imu:
+    sensor_name: imu
+    restamping: false
+  odo:
+    base_name: base
+    controller_name: controller
+    controller_topic: kinematic
+    restamping: false
+  rtls:
+    sensor_names: [tag0, tag1, tag2]
+    poll_rate: 20
+    minimal_range: 0.5
+    maximal_range: 20.0
+    rx_power_outlier_rejection_threshold: 20
