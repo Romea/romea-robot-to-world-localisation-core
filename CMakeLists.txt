@@ -26,11 +26,13 @@ find_package(rclcpp_components REQUIRED)
 find_package(romea_core_common REQUIRED)
 find_package(romea_core_localisation REQUIRED)
 find_package(romea_common_utils REQUIRED)
+find_package(romea_common_msgs REQUIRED)
 find_package(romea_localisation_msgs REQUIRED)
 find_package(romea_localisation_utils REQUIRED)
 
 add_library(${PROJECT_NAME} SHARED
- src/robot_to_world_localisation.cpp)
+ src/robot_to_world_localisation.cpp
+ src/robot_to_world_and_robot_to_robot_localisation.cpp)
 
 target_include_directories(${PROJECT_NAME} PUBLIC
  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -39,6 +41,8 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 target_compile_definitions(${PROJECT_NAME}
  PRIVATE "ROMEA_ROBOT_TO_WORLD_LOCALISATION_BUILDING_DLL")
 
+
+
 ament_target_dependencies(${PROJECT_NAME}
  class_loader
  rclcpp
@@ -46,6 +50,7 @@ ament_target_dependencies(${PROJECT_NAME}
  romea_core_common
  romea_core_localisation
  romea_common_utils
+ romea_common_msgs
  romea_localisation_msgs
  romea_localisation_utils
  )
@@ -61,10 +66,24 @@ if(${ROS_DISTRO} STREQUAL "ROS_GALACTIC")
     src/robot_to_world_localisation.cpp
     src/robot_to_world_particle_localisation_node.cpp)
 
+  add_executable(robot_to_world_and_robot_to_robot_kalman_localisation_node
+    src/robot_to_world_localisation.cpp
+    src/robot_to_world_and_robot_to_robot_kalman_localisation_node.cpp)
+
+  add_executable(robot_to_world_and_robot_to_robot_particle_localisation_node
+    src/robot_to_world_localisation.cpp
+    src/robot_to_world_and_robot_to_robot_particle_localisation_node.cpp)
+
   target_include_directories(robot_to_world_kalman_localisation_node PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 
   target_include_directories(robot_to_world_particle_localisation_node PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
+
+  target_include_directories(robot_to_world_and_robot_to_robot_kalman_localisation_node PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
+
+  target_include_directories(robot_to_world_and_robot_to_robot_particle_localisation_node PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 
   ament_target_dependencies(robot_to_world_kalman_localisation_node
@@ -74,6 +93,7 @@ if(${ROS_DISTRO} STREQUAL "ROS_GALACTIC")
     romea_core_common
     romea_core_localisation
     romea_common_utils
+    romea_common_msgs
     romea_localisation_msgs
     romea_localisation_utils)
 
@@ -84,12 +104,37 @@ if(${ROS_DISTRO} STREQUAL "ROS_GALACTIC")
     romea_core_common
     romea_core_localisation
     romea_common_utils
+    romea_common_msgs
+    romea_localisation_msgs
+    romea_localisation_utils)
+
+    ament_target_dependencies(robot_to_world_and_robot_to_robot_kalman_localisation_node
+    class_loader
+    rclcpp
+    rclcpp_components
+    romea_core_common
+    romea_core_localisation
+    romea_common_utils
+    romea_common_msgs
+    romea_localisation_msgs
+    romea_localisation_utils)
+
+  ament_target_dependencies(robot_to_world_and_robot_to_robot_particle_localisation_node
+    class_loader
+    rclcpp
+    rclcpp_components
+    romea_core_common
+    romea_core_localisation
+    romea_common_utils
+    romea_common_msgs
     romea_localisation_msgs
     romea_localisation_utils)
 
   install(TARGETS
     robot_to_world_kalman_localisation_node
     robot_to_world_particle_localisation_node
+    robot_to_world_and_robot_to_robot_kalman_localisation_node
+    robot_to_world_and_robot_to_robot_particle_localisation_node
     DESTINATION lib/${PROJECT_NAME})
 else()
   rclcpp_components_register_node(${PROJECT_NAME}
@@ -103,6 +148,18 @@ else()
     EXECUTABLE robot_to_world_particle_localisation_node
     EXECUTOR "MultiThreadedExecutor"
   )
+
+  rclcpp_components_register_node(${PROJECT_NAME}
+  PLUGIN "romea::R2WR2RKalmanLocalisation"
+  EXECUTABLE robot_to_world_and_robot_to_robot_kalman_localisation_node
+  EXECUTOR "MultiThreadedExecutor"
+)
+
+rclcpp_components_register_node(${PROJECT_NAME}
+  PLUGIN "romea::R2WR2RParticleLocalisation"
+  EXECUTABLE robot_to_world_and_robot_to_robot_particle_localisation_node
+  EXECUTOR "MultiThreadedExecutor"
+)
 
 endif()
 

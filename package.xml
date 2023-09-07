@@ -18,6 +18,7 @@
   <depend>romea_core_common</depend>
   <depend>romea_core_localisation</depend>
   <depend>romea_common_utils</depend>
+  <depend>romea_common_msgs</depend>
   <depend>romea_localisation_msgs</depend>
   <depend>romea_localisation_utils</depend>
 
