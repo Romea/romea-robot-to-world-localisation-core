@@ -7,7 +7,7 @@
 // romea
 #include "romea_common_utils/qos.hpp"
 #include "romea_localisation_utils/conversions/localisation_status_conversions.hpp"
-#include "romea_robot_to_world_localisation/robot_to_world_localisation.hpp"
+#include "romea_robot_to_world_localisation_core/robot_to_world_localisation.hpp"
 
 namespace romea
 {
@@ -113,13 +113,13 @@ void R2WLocalisation<FilterType_>::timer_callback_()
     const auto & results = filter_->get_results(to_romea_duration(stamp));
     PoseAndTwist3D odom = results.toPoseAndBodyTwist3D();
 
-    // std::cout << "odom " <<
-    //   odom.pose.position.x() << " " <<
-    //   odom.pose.position.y() << " " <<
-    //   odom.pose.position.z() << " " <<
-    //   odom.pose.orientation.x() << " " <<
-    //   odom.pose.orientation.y() << " " <<
-    //   odom.pose.orientation.z() << std::endl;
+    std::cout << "odom " <<
+      odom.pose.position.x() << " " <<
+      odom.pose.position.y() << " " <<
+      odom.pose.position.z() << " " <<
+      odom.pose.orientation.x() << " " <<
+      odom.pose.orientation.y() << " " <<
+      odom.pose.orientation.z() << std::endl;
 
     odom_publisher_->publish(stamp, odom);
     tf_publisher_->publish(stamp, odom.pose);

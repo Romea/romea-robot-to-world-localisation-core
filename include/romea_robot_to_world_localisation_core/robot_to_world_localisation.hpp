@@ -15,8 +15,8 @@
 #include "romea_common_utils/publishers/odom_publisher.hpp"
 
 // local
-#include "romea_robot_to_world_localisation/robot_to_world_localisation_filter.hpp"
-#include "romea_robot_to_world_localisation/visibility_control.h"
+#include "romea_robot_to_world_localisation_core/robot_to_world_localisation_filter.hpp"
+#include "romea_robot_to_world_localisation_core/visibility_control.h"
 
 namespace romea
 {
@@ -35,7 +35,7 @@ public:
   rclcpp::node_interfaces::NodeBaseInterface::SharedPtr
   get_node_base_interface() const;
 
-private:
+protected:
   void make_filter_();
 
   void make_timer_();
@@ -52,7 +52,7 @@ private:
 
   void timer_callback_();
 
-private:
+protected:
   std::shared_ptr<rclcpp::Node> node_;
   std::shared_ptr<rclcpp::TimerBase> timer_;
   std::unique_ptr<R2WLocalisationFilter<FilterType_>> filter_;
