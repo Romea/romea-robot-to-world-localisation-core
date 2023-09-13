@@ -93,7 +93,6 @@ R2WLocalisationFilter<FilterType_>::R2WLocalisationFilter(std::shared_ptr<rclcpp
   results_(nullptr),
   updater_interfaces_()
 {
-  RCLCPP_INFO_STREAM(node->get_logger(), " init filter ");
   make_filter_(node);
   add_proprioceptive_updater_interface_<UpdaterInterfaceLinearSpeed>(node, "linear_speed_updater");
   add_proprioceptive_updater_interface_<UpdaterInterfaceLinearSpeeds>(
@@ -132,6 +131,7 @@ void R2WLocalisationFilter<FilterType_>::make_filter_(std::shared_ptr<rclcpp::No
   declare_predictor_parameters(node);
   declare_filter_parameters<FilterType_>(node);
   filter_ = make_filter<Filter, Predictor, FilterType_>(node);
+  RCLCPP_INFO_STREAM(node->get_logger(), "filter: started ");
 }
 
 //-----------------------------------------------------------------------------
@@ -151,8 +151,6 @@ void R2WLocalisationFilter<FilterType_>::add_proprioceptive_updater_interface_(
   declare_proprioceptive_updater_parameters(node, updater_name);
 
   if (!get_updater_topic_name(node, updater_name).empty()) {
-    RCLCPP_INFO_STREAM(node->get_logger(), " init " + updater_name);
-
     using Updater = typename Interface::Updater;
     auto updater = make_proprioceptive_updater<Updater>(
       node,
@@ -165,6 +163,9 @@ void R2WLocalisationFilter<FilterType_>::add_proprioceptive_updater_interface_(
       std::move(updater));
 
     updater_interfaces_.push_back(std::move(plugin));
+    RCLCPP_INFO_STREAM(node->get_logger(), updater_name + ": started ");
+  } else {
+    RCLCPP_INFO_STREAM(node->get_logger(), updater_name + ": unconfigured ");
   }
 }
 
@@ -179,8 +180,6 @@ void R2WLocalisationFilter<FilterType_>::add_exteroceptive_updater_interface_(
   declare_exteroceptive_updater_parameters(node, updater_name);
 
   if (!get_updater_topic_name(node, updater_name).empty()) {
-    RCLCPP_INFO_STREAM(node->get_logger(), " init " + updater_name);
-
     using Updater = typename Interface::Updater;
     auto updater = make_exteroceptive_updater<Updater, FilterType_>(
       node,
@@ -192,6 +191,9 @@ void R2WLocalisationFilter<FilterType_>::add_exteroceptive_updater_interface_(
       std::move(updater));
 
     updater_interfaces_.push_back(std::move(plugin));
+    RCLCPP_INFO_STREAM(node->get_logger(), updater_name + ": started ");
+  } else {
+    RCLCPP_INFO_STREAM(node->get_logger(), updater_name + ": unconfigured ");
   }
 }
 

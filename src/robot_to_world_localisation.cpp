@@ -89,7 +89,7 @@ template<FilterType FilterType_>
 void R2WLocalisation<FilterType_>::make_diagnostic_publisher_()
 {
   diagnostic_publisher_ = make_diagnostic_publisher<DiagnosticReport>(
-    node_, "r2w_localisation", 1.0);
+    node_, "robot_to_world_localisation", 1.0);
 }
 
 //-----------------------------------------------------------------------------
