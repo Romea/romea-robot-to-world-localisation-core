@@ -24,6 +24,7 @@ class R2WLocalisationFilter
 public:
   using Filter = typename  R2WLocalisationTraits<FilterType_>::Filter;
   using Predictor = typename R2WLocalisationTraits<FilterType_>::Predictor;
+  using UpdaterTwist = typename R2WLocalisationTraits<FilterType_>::UpdaterTwist;
   using UpdaterLinearSpeed = typename R2WLocalisationTraits<FilterType_>::UpdaterLinearSpeed;
   using UpdaterLinearSpeeds = typename R2WLocalisationTraits<FilterType_>::UpdaterLinearSpeeds;
   using UpdaterAngularSpeed = typename  R2WLocalisationTraits<FilterType_>::UpdaterAngularSpeed;
@@ -35,6 +36,8 @@ public:
   using Results = typename R2WLocalisationTraits<FilterType_>::Results;
 
   using UpdaterInterface = LocalisationUpdaterInterfaceBase;
+  using UpdaterInterfaceTwist = LocalisationUpdaterInterface<Filter, UpdaterTwist,
+      romea_localisation_msgs::msg::ObservationTwist2DStamped>;
   using UpdaterInterfaceLinearSpeed = LocalisationUpdaterInterface<Filter, UpdaterLinearSpeed,
       romea_localisation_msgs::msg::ObservationTwist2DStamped>;
   using UpdaterInterfaceLinearSpeeds = LocalisationUpdaterInterface<Filter, UpdaterLinearSpeeds,
@@ -72,12 +75,14 @@ private:
   template<typename Interface>
   void add_proprioceptive_updater_interface_(
     std::shared_ptr<rclcpp::Node> node,
-    const std::string & updater_name);
+    const std::string & updater_name,
+    const std::string & topic_name);
 
   template<typename interface>
   void add_exteroceptive_updater_interface_(
     std::shared_ptr<rclcpp::Node> node,
-    const std::string & updater_name);
+    const std::string & updater_name,
+    const std::string & topic_name);
 
 private:
   std::shared_ptr<Filter> filter_;
@@ -94,18 +99,24 @@ R2WLocalisationFilter<FilterType_>::R2WLocalisationFilter(std::shared_ptr<rclcpp
   updater_interfaces_()
 {
   make_filter_(node);
-  add_proprioceptive_updater_interface_<UpdaterInterfaceLinearSpeed>(node, "linear_speed_updater");
+  add_proprioceptive_updater_interface_<UpdaterInterfaceTwist>(
+    node, "twist_updater", "twist");
+  add_proprioceptive_updater_interface_<UpdaterInterfaceLinearSpeed>(
+    node, "linear_speed_updater", "twist");
   add_proprioceptive_updater_interface_<UpdaterInterfaceLinearSpeeds>(
-    node,
-    "linear_speeds_updater");
+    node, "linear_speeds_updater", "twist");
   add_proprioceptive_updater_interface_<UpdaterInterfaceAngularSpeed>(
-    node,
-    "angular_speed_updater");
-  add_proprioceptive_updater_interface_<UpdaterInterfaceAttitude>(node, "attitude_updater");
-  add_exteroceptive_updater_interface_<UpdaterInterfacePosition>(node, "position_updater");
-  add_exteroceptive_updater_interface_<UpdaterInterfaceCourse>(node, "course_updater");
-  add_exteroceptive_updater_interface_<UpdaterInterfaceRange>(node, "range_updater");
-  add_exteroceptive_updater_interface_<UpdaterInterfacePose>(node, "pose_updater");
+    node, "angular_speed_updater", "angular_speed");
+  add_proprioceptive_updater_interface_<UpdaterInterfaceAttitude>(
+    node, "attitude_updater", "attitude");
+  add_exteroceptive_updater_interface_<UpdaterInterfacePosition>(
+    node, "position_updater", "position");
+  add_exteroceptive_updater_interface_<UpdaterInterfaceCourse>(
+    node, "course_updater", "course");
+  add_exteroceptive_updater_interface_<UpdaterInterfaceRange>(
+    node, "range_updater", "range");
+  add_exteroceptive_updater_interface_<UpdaterInterfacePose>(
+    node, "pose_updater", "pose");
   make_results_(node);
 }
 
@@ -146,11 +157,12 @@ template<FilterType FilterType_>
 template<typename Interface>
 void R2WLocalisationFilter<FilterType_>::add_proprioceptive_updater_interface_(
   std::shared_ptr<rclcpp::Node> node,
-  const std::string & updater_name)
+  const std::string & updater_name,
+  const std::string & topic_name)
 {
   declare_proprioceptive_updater_parameters(node, updater_name);
 
-  if (!get_updater_topic_name(node, updater_name).empty()) {
+  if (get_updater_minimal_rate(node, updater_name) != 0) {
     using Updater = typename Interface::Updater;
     auto updater = make_proprioceptive_updater<Updater>(
       node,
@@ -158,7 +170,7 @@ void R2WLocalisationFilter<FilterType_>::add_proprioceptive_updater_interface_(
 
     auto plugin = make_updater_interface<Interface>(
       node,
-      updater_name,
+      topic_name,
       filter_,
       std::move(updater));
 
@@ -175,18 +187,19 @@ template<FilterType FilterType_>
 template<typename Interface>
 void R2WLocalisationFilter<FilterType_>::add_exteroceptive_updater_interface_(
   std::shared_ptr<rclcpp::Node> node,
-  const std::string & updater_name)
+  const std::string & updater_name,
+  const std::string & topic_name)
 {
   declare_exteroceptive_updater_parameters(node, updater_name);
 
-  if (!get_updater_topic_name(node, updater_name).empty()) {
+  if (get_updater_minimal_rate(node, updater_name) != 0) {
     using Updater = typename Interface::Updater;
     auto updater = make_exteroceptive_updater<Updater, FilterType_>(
       node,
       updater_name);
     auto plugin = make_updater_interface<Interface>(
       node,
-      updater_name,
+      topic_name,
       filter_,
       std::move(updater));
 
