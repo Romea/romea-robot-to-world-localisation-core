@@ -68,10 +68,12 @@ if(${ROS_DISTRO} STREQUAL "ROS_GALACTIC")
 
   add_executable(robot_to_world_and_robot_to_robot_kalman_localisation_node
     src/robot_to_world_localisation.cpp
+    src/robot_to_world_and_robot_to_robot_localisation.cpp
     src/robot_to_world_and_robot_to_robot_kalman_localisation_node.cpp)
 
   add_executable(robot_to_world_and_robot_to_robot_particle_localisation_node
     src/robot_to_world_localisation.cpp
+    src/robot_to_world_and_robot_to_robot_localisation.cpp
     src/robot_to_world_and_robot_to_robot_particle_localisation_node.cpp)
 
   target_include_directories(robot_to_world_kalman_localisation_node PUBLIC
