@@ -77,7 +77,8 @@ def generate_launch_description():
 
     declared_arguments = []
 
-    declared_arguments.append(DeclareLaunchArgument("filter_name", defaul_value="robot_to_world_localisation"))
+    declared_arguments.append(
+        DeclareLaunchArgument("filter_name", defaul_value="robot_to_world_localisation"))
 
     declared_arguments.append(DeclareLaunchArgument("filter_type", defaul_value="kalman"))
 
