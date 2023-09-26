@@ -5,28 +5,21 @@ predictor:
   maximal_dead_recknoning_travelled_distance: 2.
   maximal_dead_recknoning_elapsed_time: 10.
 angular_speed_updater:
-  topic: angular_speed
   minimal_rate: 10
 linear_speeds_updater:
-  topic: twist
   minimal_rate: 10
 position_updater:
-  topic: position
   minimal_rate: 1
   trigger: always
 course_updater:
-  topic: course
   minimal_rate: 1
   trigger: once
 attitude_updater:
-  topic: attitude
   minimal_rate: 10
 pose_updater:
-  topic: pose
   minimal_rate: 1
   trigger: once
 range_updater:
-  topic: range
   minimal_rate: 10
   trigger: always
 publish_rate: 10
