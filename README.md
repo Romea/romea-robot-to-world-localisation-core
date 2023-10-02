@@ -1,6 +1,7 @@
 # 1 Overview #
 
-This package provides robot to robot localisation node able to estimate the robot position in using data comming from IMU, GPS, radar, lidar and RTLS sensors.
+This package provides robot to world localisation node able to estimate robot absolute position by a Kalman or particle filter using observations provided by diferent localisation plugins: odo ([gitlab](https://gitlab.irstea.fr/romea_ros2/algorithms/localisation/romea_localisation_odo_plugin), [github](https://github.com/Romea/romea-ros2-localisation-odo-plugin)), imu ([gitlab](https://gitlab.irstea.fr/romea_ros2/algorithms/localisation/romea_localisation_imu_plugin), [github](https://github.com/Romea/romea-ros2-localisation-imu-plugin)) and  robot to world rtls ([gitlab](https://gitlab.irstea.fr/romea_ros2/algorithms/localisation/romea_robot_to_world_localisation_rtls_plugin), [github](https://github.com/Romea/romea-ros2-robot-to-world-localisation-rtls-plugin)), radar and  lidar plugins. This plugins are used to convert data coming from sensors to observations that can be used by both filters. 
+
 
 # 2 Node #
 
@@ -8,19 +9,19 @@ This package provides robot to robot localisation node able to estimate the robo
 
 - localisation/twist (romea_localisation_msgs::msg::ObservationTwist2DStamped)
 
-    This topic is provided by odo localisation plugin node and contains robot twist displacement data
+    This topic is provided by odo localisation plugin node and contains robot twist displacement observation deduced from odometry data coming from controller 
 
 - localisation/angular_speed(romea_localisation_msgs::msg::ObservationAngularSpeedStamped)
 
-    This topic is provided by imu localisation plugin node and contains robot angular speed data
+    This topic is provided by imu localisation plugin node and contains robot angular speed observation deduced from data coming from IMU sensor
 
 - localisation/position (romea_localisation_msgs::msg::ObservationPosition2DStamped)
 
-    This topic is provided by gps localisation plugin node and contains a cartesian position with respect of an ENU reference frame defined by user
+    This topic is provided by gps localisation plugin node and contains a cartesian position with respect of an ENU reference frame defined by user, this observation is deduced from NMEA data coming from gps sensor
 
 - localisation/course (romea_localisation_msgs::msg::ObservationCourse2DStamped)
 
-    This topic is provided by gps localisation plugin node and contains a robot course angle with of an ENU reference frame defined by user
+    This topic is provided by gps localisation plugin node and contains a robot course observation with of an ENU reference frame defined by user, this observation is deduced from NMEA data coming from gps sensor
 
 - localisation/pose (romea_localisation_msgs::msg::ObservationPose2DStamped)
 
@@ -28,7 +29,7 @@ This package provides robot to robot localisation node able to estimate the robo
 
 - localisation/range (romea_localisation_msgs::msg::ObservationRangeStamped)
 
-    This topic is provided by rtls localisation plugin node and contains range data between follower and leader rtls transceivers
+    This topic is provided by rtls localisation plugin node and contains range observation deduced from ranging data between rtls transceivers embedded on the robot and rtls transceivers located in the infrastructure   
 
 ### 2.2 Published Topics ###
 
@@ -45,11 +46,11 @@ This package provides robot to robot localisation node able to estimate the robo
   ~predictor.maximal_dead_recknoning_elapsed_time (double, default: 1.0)
 
     Maximal elapsed time in dead reckoning mode before to stop localisation filter
-  
+
   ~predictor.maximal_dead_recknoning_travelled_distance (double, default: 1.0)
 
     Maximal travelled distance in dead reckoning mode before to stop localisation filter
-  
+
   ~predictor.maximal_position_circular_error_probability (double, default)
 
     Maximal circular error in dead reckoning mode before to stop localisation filter
@@ -63,11 +64,11 @@ This package provides robot to robot localisation node able to estimate the robo
     Minimal rate for linear_speed_updater input data (provided by odo plugin), if this rate is equal to 0 linear_speed_updater is not started 
 
   ~linear_speeds_updater.minimal_rate (int, default: 0)
-  
+
     Minimal rate for linear_speeds_updater input data (provided by odo plugin), if this rate is equal to 0 linear_speeds_updater is not started 
 
   ~angular_updater.minimal_rate (int, default: 0)
-  
+
     Minimal rate for angular_updater input data (provided by imu plugin), if this rate is equal to 0 angular_updater is not started 
 
   ~position_updater.mahalanobis_distance_rejection_threshold (double, default: 5.0)
@@ -117,7 +118,7 @@ This package provides robot to robot localisation node able to estimate the robo
   ~range_updater.trigger (string, default: "always")
 
     Update trigger mode when position data is received. If "once" mode is selected the range updater will be triggered only one time otherwise the range updater will be triggerred each time data is received.
-     
+
   ~base_footprint_frame_id (string, default: base_footprint):
 
     Name of robot base footprint
@@ -129,8 +130,7 @@ This package provides robot to robot localisation node able to estimate the robo
   ~log_directory(string, default: result of rclcpp::get_logging_directory()):
 
     Directory where localisation logs are stored
-  
+
   ~debug (bool, default: false)
 
     Enable debug logs
-  
