@@ -28,23 +28,37 @@
 
 namespace romea
 {
+namespace ros2
+{
 
-template<FilterType FilterType_>
+template<core::FilterType FilterType_>
 class R2WLocalisationFilter
 {
 public:
-  using Filter = typename  R2WLocalisationTraits<FilterType_>::Filter;
-  using Predictor = typename R2WLocalisationTraits<FilterType_>::Predictor;
-  using UpdaterTwist = typename R2WLocalisationTraits<FilterType_>::UpdaterTwist;
-  using UpdaterLinearSpeed = typename R2WLocalisationTraits<FilterType_>::UpdaterLinearSpeed;
-  using UpdaterLinearSpeeds = typename R2WLocalisationTraits<FilterType_>::UpdaterLinearSpeeds;
-  using UpdaterAngularSpeed = typename  R2WLocalisationTraits<FilterType_>::UpdaterAngularSpeed;
-  using UpdaterAttitude = typename  R2WLocalisationTraits<FilterType_>::UpdaterAttitude;
-  using UpdaterCourse = typename  R2WLocalisationTraits<FilterType_>::UpdaterCourse;
-  using UpdaterRange = typename  R2WLocalisationTraits<FilterType_>::UpdaterRange;
-  using UpdaterPose = typename R2WLocalisationTraits<FilterType_>::UpdaterPose;
-  using UpdaterPosition = typename R2WLocalisationTraits<FilterType_>::UpdaterPosition;
-  using Results = typename R2WLocalisationTraits<FilterType_>::Results;
+  using Filter =
+    typename core::R2WLocalisationTraits<FilterType_>::Filter;
+  using Predictor =
+    typename core::R2WLocalisationTraits<FilterType_>::Predictor;
+  using UpdaterTwist =
+    typename core::R2WLocalisationTraits<FilterType_>::UpdaterTwist;
+  using UpdaterLinearSpeed =
+    typename core::R2WLocalisationTraits<FilterType_>::UpdaterLinearSpeed;
+  using UpdaterLinearSpeeds =
+    typename core::R2WLocalisationTraits<FilterType_>::UpdaterLinearSpeeds;
+  using UpdaterAngularSpeed =
+    typename core::R2WLocalisationTraits<FilterType_>::UpdaterAngularSpeed;
+  using UpdaterAttitude =
+    typename core::R2WLocalisationTraits<FilterType_>::UpdaterAttitude;
+  using UpdaterCourse =
+    typename core::R2WLocalisationTraits<FilterType_>::UpdaterCourse;
+  using UpdaterRange =
+    typename core::R2WLocalisationTraits<FilterType_>::UpdaterRange;
+  using UpdaterPose =
+    typename core::R2WLocalisationTraits<FilterType_>::UpdaterPose;
+  using UpdaterPosition =
+    typename core::R2WLocalisationTraits<FilterType_>::UpdaterPosition;
+  using Results =
+    typename core::R2WLocalisationTraits<FilterType_>::Results;
 
   using UpdaterInterface = LocalisationUpdaterInterfaceBase;
   using UpdaterInterfaceTwist = LocalisationUpdaterInterface<Filter, UpdaterTwist,
@@ -72,11 +86,11 @@ public:
   void reset();
 
 public:
-  LocalisationFSMState get_fsm_state();
+  core::LocalisationFSMState get_fsm_state();
 
-  const Results & get_results(const Duration & duration);
+  const Results & get_results(const core::Duration & duration);
 
-  DiagnosticReport make_diagnostic_report(const Duration & duration);
+  core::DiagnosticReport make_diagnostic_report(const core::Duration & duration);
 
 private:
   void make_filter_(std::shared_ptr<rclcpp::Node> node);
@@ -106,7 +120,7 @@ private:
 
 
 //-----------------------------------------------------------------------------
-template<FilterType FilterType_>
+template<core::FilterType FilterType_>
 R2WLocalisationFilter<FilterType_>::R2WLocalisationFilter(std::shared_ptr<rclcpp::Node> node)
 : filter_(nullptr),
   results_(nullptr),
@@ -136,21 +150,21 @@ R2WLocalisationFilter<FilterType_>::R2WLocalisationFilter(std::shared_ptr<rclcpp
 
 
 //-----------------------------------------------------------------------------
-template<FilterType FilterType_>
-LocalisationFSMState R2WLocalisationFilter<FilterType_>::get_fsm_state()
+template<core::FilterType FilterType_>
+core::LocalisationFSMState R2WLocalisationFilter<FilterType_>::get_fsm_state()
 {
   return filter_->getFSMState();
 }
 
 //-----------------------------------------------------------------------------
-template<FilterType FilterType_>
+template<core::FilterType FilterType_>
 void R2WLocalisationFilter<FilterType_>::reset()
 {
   filter_->reset();
 }
 
 //-----------------------------------------------------------------------------
-template<FilterType FilterType_>
+template<core::FilterType FilterType_>
 void R2WLocalisationFilter<FilterType_>::make_filter_(std::shared_ptr<rclcpp::Node> node)
 {
   declare_filter_parameters<FilterType_>(node);
@@ -160,14 +174,14 @@ void R2WLocalisationFilter<FilterType_>::make_filter_(std::shared_ptr<rclcpp::No
 }
 
 //-----------------------------------------------------------------------------
-template<FilterType FilterType_>
+template<core::FilterType FilterType_>
 void R2WLocalisationFilter<FilterType_>::make_results_(std::shared_ptr<rclcpp::Node> node)
 {
   results_ = make_results<Results, FilterType_>(node);
 }
 
 //-----------------------------------------------------------------------------
-template<FilterType FilterType_>
+template<core::FilterType FilterType_>
 template<typename Interface>
 void R2WLocalisationFilter<FilterType_>::add_proprioceptive_updater_interface_(
   std::shared_ptr<rclcpp::Node> node,
@@ -198,7 +212,7 @@ void R2WLocalisationFilter<FilterType_>::add_proprioceptive_updater_interface_(
 
 
 //-----------------------------------------------------------------------------
-template<FilterType FilterType_>
+template<core::FilterType FilterType_>
 template<typename Interface>
 void R2WLocalisationFilter<FilterType_>::add_exteroceptive_updater_interface_(
   std::shared_ptr<rclcpp::Node> node,
@@ -229,9 +243,9 @@ void R2WLocalisationFilter<FilterType_>::add_exteroceptive_updater_interface_(
 }
 
 //-----------------------------------------------------------------------------
-template<FilterType FilterType_>
+template<core::FilterType FilterType_>
 const typename R2WLocalisationFilter<FilterType_>::Results &
-R2WLocalisationFilter<FilterType_>::get_results(const Duration & duration)
+R2WLocalisationFilter<FilterType_>::get_results(const core::Duration & duration)
 {
   results_->setDuration(duration);
   filter_->getCurrentState(duration, results_.get());
@@ -239,10 +253,11 @@ R2WLocalisationFilter<FilterType_>::get_results(const Duration & duration)
 }
 
 //-----------------------------------------------------------------------------
-template<FilterType FilterType_>
-DiagnosticReport R2WLocalisationFilter<FilterType_>::make_diagnostic_report(const Duration & stamp)
+template<core::FilterType FilterType_>
+core::DiagnosticReport R2WLocalisationFilter<FilterType_>::make_diagnostic_report(
+  const core::Duration & stamp)
 {
-  DiagnosticReport report;
+  core::DiagnosticReport report;
   for (auto & interface_ptr : updater_interfaces_) {
     interface_ptr->heartbeat_callback(stamp);
     report += interface_ptr->get_report();
@@ -251,6 +266,7 @@ DiagnosticReport R2WLocalisationFilter<FilterType_>::make_diagnostic_report(cons
   return report;
 }
 
+}  // namespace ros2
 }  // namespace romea
 
 #endif  // ROMEA_ROBOT_TO_WORLD_LOCALISATION_CORE__ROBOT_TO_WORLD_LOCALISATION_FILTER_HPP_

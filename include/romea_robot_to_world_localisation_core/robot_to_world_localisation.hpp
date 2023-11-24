@@ -31,8 +31,10 @@
 
 namespace romea
 {
+namespace ros2
+{
 
-template<FilterType FilterType_>
+template<core::FilterType FilterType_>
 class R2WLocalisation
 {
 public:
@@ -68,15 +70,16 @@ protected:
   std::shared_ptr<rclcpp::TimerBase> timer_;
   std::unique_ptr<R2WLocalisationFilter<FilterType_>> filter_;
 
-  std::shared_ptr<StampedPublisherBase<Pose3D>> tf_publisher_;
-  std::shared_ptr<StampedPublisherBase<PoseAndTwist3D>> odom_publisher_;
-  std::shared_ptr<StampedPublisherBase<DiagnosticReport>> diagnostic_publisher_;
-  std::shared_ptr<PublisherBase<LocalisationFSMState>> status_publisher_;
+  std::shared_ptr<StampedPublisherBase<core::Pose3D>> tf_publisher_;
+  std::shared_ptr<StampedPublisherBase<core::PoseAndTwist3D>> odom_publisher_;
+  std::shared_ptr<StampedPublisherBase<core::DiagnosticReport>> diagnostic_publisher_;
+  std::shared_ptr<PublisherBase<core::LocalisationFSMState>> status_publisher_;
 };
 
-using R2WKalmanLocalisation = R2WLocalisation<FilterType::KALMAN>;
-using R2WParticleLocalisation = R2WLocalisation<FilterType::PARTICLE>;
+using R2WKalmanLocalisation = R2WLocalisation<core::FilterType::KALMAN>;
+using R2WParticleLocalisation = R2WLocalisation<core::FilterType::PARTICLE>;
 
+}  // namespace ros2
 }  // namespace romea
 
 #endif  // ROMEA_ROBOT_TO_WORLD_LOCALISATION_CORE__ROBOT_TO_WORLD_LOCALISATION_HPP_

@@ -26,14 +26,16 @@
 // #include "romea_common_utils/publishers/odom_publisher.hpp"
 
 // local
-#include "romea_common_utils/publishers/stamped_data_publisher.hpp"
 #include "romea_common_utils/conversions/pose_and_twist2d_conversions.hpp"
+#include "romea_common_utils/publishers/stamped_data_publisher.hpp"
 #include "romea_robot_to_world_localisation_core/robot_to_world_localisation.hpp"
 
 namespace romea
 {
+namespace ros2
+{
 
-template<FilterType FilterType_>
+template<core::FilterType FilterType_>
 class R2WR2RLocalisation : public R2WLocalisation<FilterType_>
 {
 public:
@@ -55,12 +57,13 @@ private:
 
 private:
   std::shared_ptr<rclcpp::Subscription<OdometryMsg>> leader_odom_sub_;
-  std::shared_ptr<StampedPublisherBase<PoseAndTwist2D>> leader_pose_and_twist_publisher_;
+  std::shared_ptr<StampedPublisherBase<core::PoseAndTwist2D>> leader_pose_and_twist_publisher_;
 };
 
-using R2WR2RKalmanLocalisation = R2WR2RLocalisation<FilterType::KALMAN>;
-using R2WR2RParticleLocalisation = R2WR2RLocalisation<FilterType::PARTICLE>;
+using R2WR2RKalmanLocalisation = R2WR2RLocalisation<core::FilterType::KALMAN>;
+using R2WR2RParticleLocalisation = R2WR2RLocalisation<core::FilterType::PARTICLE>;
 
+}  // namespace ros2
 }  // namespace romea
 
 #endif  // ROMEA_ROBOT_TO_WORLD_LOCALISATION_CORE__ROBOT_TO_WORLD_AND_ROBOT_TO_ROBOT_LOCALISATION_HPP_

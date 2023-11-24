@@ -17,9 +17,11 @@
 
 namespace romea
 {
+namespace ros2
+{
 
 //-----------------------------------------------------------------------------
-template<FilterType FilterType_>
+template<core::FilterType FilterType_>
 R2WR2RLocalisation<FilterType_>::R2WR2RLocalisation(const rclcpp::NodeOptions & options)
 : R2WLocalisation<FilterType_>(options)
 {
@@ -28,10 +30,10 @@ R2WR2RLocalisation<FilterType_>::R2WR2RLocalisation(const rclcpp::NodeOptions & 
 }
 
 //-----------------------------------------------------------------------------
-template<FilterType FilterType_>
+template<core::FilterType FilterType_>
 void R2WR2RLocalisation<FilterType_>::make_leader_pose_and_twist_pub_()
 {
-  leader_pose_and_twist_publisher_ = make_stamped_data_publisher<PoseAndTwist2D,
+  leader_pose_and_twist_publisher_ = make_stamped_data_publisher<core::PoseAndTwist2D,
       romea_common_msgs::msg::PoseAndTwist2DStamped>(
     this->node_,
     "filtered_leader_pose",
@@ -41,7 +43,7 @@ void R2WR2RLocalisation<FilterType_>::make_leader_pose_and_twist_pub_()
 }
 
 //-----------------------------------------------------------------------------
-template<FilterType FilterType_>
+template<core::FilterType FilterType_>
 void R2WR2RLocalisation<FilterType_>::make_leader_odom_sub_()
 {
   auto callback =
@@ -55,37 +57,38 @@ void R2WR2RLocalisation<FilterType_>::make_leader_odom_sub_()
 }
 
 //-----------------------------------------------------------------------------
-template<FilterType FilterType_>
+template<core::FilterType FilterType_>
 void R2WR2RLocalisation<FilterType_>::leader_odom_callback_(OdometryMsg::ConstSharedPtr msg)
 {
-  LocalisationFSMState fsm_state = this->filter_->get_fsm_state();
-  if (fsm_state == LocalisationFSMState::RUNNING) {
+  auto fsm_state = this->filter_->get_fsm_state();
+  if (fsm_state == core::LocalisationFSMState::RUNNING) {
     const auto & results = this->filter_->get_results(extract_duration(*msg));
 
-    Pose2D follower_pose = results.toPose2D();
-    Pose2D leader_pose = toPose2D(to_romea(msg->pose));
+    core::Pose2D follower_pose = results.toPose2D();
+    core::Pose2D leader_pose = toPose2D(to_romea(msg->pose));
 
-    PoseAndTwist2D follower_to_leader_pose;
+    core::PoseAndTwist2D follower_to_leader_pose;
     follower_to_leader_pose.pose.yaw =
-      betweenMinusPiAndPi(leader_pose.yaw - follower_pose.yaw);
+      core::betweenMinusPiAndPi(leader_pose.yaw - follower_pose.yaw);
 
     follower_to_leader_pose.pose.position =
-      eulerAngleToRotation2D(-follower_pose.yaw) *
+      core::eulerAngleToRotation2D(-follower_pose.yaw) *
       (leader_pose.position - follower_pose.position);
 
     // TOTO(jean) add covariance
-    follower_to_leader_pose.twist = toTwist2D(to_romea(msg->twist));
+    follower_to_leader_pose.twist = core::toTwist2D(to_romea(msg->twist));
 
     leader_pose_and_twist_publisher_->publish(msg->header.stamp, follower_to_leader_pose);
   }
 }
 
-template class R2WR2RLocalisation<FilterType::KALMAN>;
-template class R2WR2RLocalisation<FilterType::PARTICLE>;
+template class R2WR2RLocalisation<core::FilterType::KALMAN>;
+template class R2WR2RLocalisation<core::FilterType::PARTICLE>;
 
+}  // namespace ros2
 }  // namespace romea
 
 //-----------------------------------------------------------------------------
 #include "rclcpp_components/register_node_macro.hpp"
-RCLCPP_COMPONENTS_REGISTER_NODE(romea::R2WR2RKalmanLocalisation)
-RCLCPP_COMPONENTS_REGISTER_NODE(romea::R2WR2RParticleLocalisation)
+RCLCPP_COMPONENTS_REGISTER_NODE(romea::ros2::R2WR2RKalmanLocalisation)
+RCLCPP_COMPONENTS_REGISTER_NODE(romea::ros2::R2WR2RParticleLocalisation)
